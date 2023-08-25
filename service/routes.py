@@ -60,9 +60,14 @@ def create_accounts():
 ######################################################################
 # LIST ALL ACCOUNTS
 ######################################################################
-
-# ... place you code here to LIST accounts ...
-
+@app.route("/accounts/<int:id>",methods=["GET"])
+def read_account(id):
+    """When called, this reads the account"""
+    acct = Account.find(id)
+    app.logger.info("Request to read an Account with id: %s", id)
+    if not acct:
+        abort(status.HTTP_404_NOT_FOUND,f"Account with id[{id}] could not be found.")
+    return acct.serialize(), status.HTTP_200_OK
 
 ######################################################################
 # READ AN ACCOUNT
@@ -76,8 +81,6 @@ def read_account(id):
         abort(status.HTTP_404_NOT_FOUND,f"Account with id[{id}] could not be found.")
     return acct.serialize(), status.HTTP_200_OK
     
-
-
 ######################################################################
 # UPDATE AN EXISTING ACCOUNT
 ######################################################################
@@ -91,7 +94,6 @@ def update_accounts(id):
     new_acct.deserialize(request.get_json())
     new_acct.update()
     return new_acct.serialize(), status.HTTP_200_OK
-
 
 ######################################################################
 # DELETE AN ACCOUNT
