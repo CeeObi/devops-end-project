@@ -38,7 +38,6 @@ class TestAccountService(TestCase):
         init_db(app)
         talisman.force_https = False
 
-
     @classmethod
     def tearDownClass(cls):
         """Runs once before test suite"""
@@ -130,42 +129,42 @@ class TestAccountService(TestCase):
     # ADD YOUR TEST CASES HERE ...
     def test_read_an_account(self):
         "It should read a single Account"
-        account=self._create_accounts(1)[0]
-        resp=self.client.get(
+        account = self._create_accounts(1)[0]
+        resp = self.client.get(
                 f"{BASE_URL}/{account.id}", content_type="application/json"
             )
-        self.assertEqual(resp.status_code,status.HTTP_200_OK)
-        data=resp.get_json()
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
         self.assertEqual(data["name"], account.name)
 
     def test_get_account_not_found(self):
         """It should not Read an Account that is not found"""
-        resp=self.client.get(f"{BASE_URL}/0")
+        resp = self.client.get(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_account(self):
         """It should Update an existing Account"""
         # create an Account to update
         test_account = AccountFactory()
-        resp = self.client.post(BASE_URL,json=test_account.serialize(),content_type="application/json")
+        resp = self.client.post(BASE_URL, json=test_account.serialize(), content_type="application/json")
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         # update the account
         new_account = resp.get_json()
         new_account["name"] = "Dimix3"
-        resp = self.client.put(f"{BASE_URL}/{new_account['id']}",json=new_account)
+        resp = self.client.put(f"{BASE_URL}/{new_account['id']}", json=new_account)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data=resp.get_json()
+        data = resp.get_json()
         self.assertEqual(data["name"], "Dimix3")
-        resp=self.client.put(f"{BASE_URL}/0")
+        resp = self.client.put(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
-        
+
     def test_delete_account(self):
         """It should Delete an Account"""
-        account = self._create_accounts(1)[0]        
+        account = self._create_accounts(1)[0]
         resp = self.client.delete(f"{BASE_URL}/{account.id}")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
-        resp=self.client.delete(f"{BASE_URL}/0")
+        resp = self.client.delete(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_account_list(self):
@@ -173,32 +172,31 @@ class TestAccountService(TestCase):
         self._create_accounts(5)
         resp = self.client.get(f"{BASE_URL}")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data= resp.get_json()
-        self.assertEqual(len(data),5)
+        data = resp.get_json()
+        self.assertEqual(len(data), 5)
 
     def test_method_not_allowed(self):
         """It should not allow an illegal method call"""
-        resp=self.client.delete(f"{BASE_URL}")
+        resp = self.client.delete(f"{BASE_URL}")
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
-       
+
     def test_security_headers(self):
-        """It should return security headers"""        
-        resp = self.client.get("/",environ_overrides=HTTPS_ENVIRON)
+        """It should return security headers"""
+        resp = self.client.get("/", environ_overrides=HTTPS_ENVIRON)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        headers={
+        headers = {
             'X-Frame-Options': 'SAMEORIGIN',
             'X-XSS-Protection': '1; mode=block',
             'X-Content-Type-Options': 'nosniff',
             'Content-Security-Policy': 'default-src \'self\'; object-src \'none\'',
             'Referrer-Policy': 'strict-origin-when-cross-origin'
         }
-        for key,value in headers.items():
+        for key, value in headers.items():
             self.assertEqual(resp.headers.get(key), value)
 
     def test_cors_security(self):
-        """It should return CORS headers"""        
-        resp = self.client.get("/",environ_overrides=HTTPS_ENVIRON)
+        """It should return CORS headers"""
+        resp = self.client.get("/", environ_overrides=HTTPS_ENVIRON)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         print(f"Here: {resp.headers.get('Access-Control-Allow-Origin')}")
         self.assertEqual(resp.headers.get("Access-Control-Allow-Origin"), '*')
-
