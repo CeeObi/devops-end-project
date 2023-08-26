@@ -62,7 +62,8 @@ def create_accounts():
 ######################################################################
 # ... place you code here to LIST accounts ...
 
-@app.route("/accounts",methods=["GET"])
+
+@app.route("/accounts", methods=["GET"])
 def list_accounts():
     """When called, this reads the account"""
     accounts = Account.all()
@@ -73,27 +74,29 @@ def list_accounts():
 ######################################################################
 # READ AN ACCOUNT
 ######################################################################
-@app.route("/accounts/<int:id>",methods=["GET"])
+
+
+@app.route("/accounts/<int:id>", methods=["GET"])
 def read_account(id):
     """When called, this reads the account"""
     acct = Account.find(id)
     app.logger.info("Request to read an Account with id: %s", id)
     if not acct:
-        abort(status.HTTP_404_NOT_FOUND,f"Account with id[{id}] could not be found.")
+        abort(status.HTTP_404_NOT_FOUND, f"Account with id[{id}] could not be found.")
     return acct.serialize(), status.HTTP_200_OK
-    
-
 
 ######################################################################
 # UPDATE AN EXISTING ACCOUNT
 ######################################################################
+
+
 @app.route("/accounts/<int:id>", methods=["PUT"])
 def update_accounts(id):
     """When called, this updates the account"""
     new_acct = Account.find(id)
     app.logger.info("Request to read an Account with id: %s", id)
     if not new_acct:
-        abort(status.HTTP_404_NOT_FOUND,f"Account with id[{id}] could not be found.")
+        abort(status.HTTP_404_NOT_FOUND, f"Account with id[{id}] could not be found.")
     new_acct.deserialize(request.get_json())
     new_acct.update()
     return new_acct.serialize(), status.HTTP_200_OK
@@ -110,8 +113,8 @@ def delete_accounts(id):
     new_acct = Account.find(id)
     app.logger.info("Request to read an Account with id: %s", id)
     if not new_acct:
-        abort(status.HTTP_404_NOT_FOUND,f"Account with id[{id}] could not be found.")    
-    new_acct.delete()
+        abort(status.HTTP_404_NOT_FOUND, f"Account with id[{id}] could not be found.")
+        new_acct.delete()
     return " ", status.HTTP_204_NO_CONTENT
 
 
